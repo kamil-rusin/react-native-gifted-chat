@@ -14,6 +14,10 @@ import Color from './Color'
 import { User } from './Models'
 import { StylePropType } from './utils'
 
+// tslint:disable-next-line:no-var-requires
+const emojiRegex = require('emoji-regex/RGI_Emoji.js')
+const regex = emojiRegex()
+
 const {
   carrot,
   emerald,
@@ -76,14 +80,34 @@ export default class GiftedAvatar extends React.Component<GiftedAvatarProps> {
 
   setAvatarColor() {
     const userName = (this.props.user && this.props.user.name) || ''
-    const name = userName.toUpperCase().split(' ')
-    if (name.length === 1) {
-      this.avatarName = `${name[0].charAt(0)}`
-    } else if (name.length > 1) {
-      this.avatarName = `${name[0].charAt(0)}${name[1].charAt(0)}`
-    } else {
-      this.avatarName = ''
+    // const name = userName.toUpperCase().split(' ')
+    // if (name.length === 1) {
+    //   this.avatarName = `${name[0].charAt(0)}`
+    // } else if (name.length > 1) {
+    //   this.avatarName = `${name[0].charAt(0)}${name[1].charAt(0)}`
+    // } else {
+    //   this.avatarName = ''
+    // }
+
+    let value = ''
+    let match
+
+    const trimmedUsername = userName.trim()
+
+    // tslint:disable-next-line:no-conditional-assignment
+    while ((match = regex.exec(trimmedUsername))) {
+      const emoji = match[0]
+      const temp = trimmedUsername.substring(0, emoji.length)
+      if (temp === emoji) {
+        value = temp
+      }
     }
+
+    if (!value) {
+      value = trimmedUsername ? trimmedUsername[0].toUpperCase() : 'U'
+    }
+
+    this.avatarName = value
 
     let sumChars = 0
     for (let i = 0; i < userName.length; i += 1) {
